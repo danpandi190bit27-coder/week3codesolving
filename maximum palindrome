@@ -1,0 +1,77 @@
+import java.util.*;
+import java.io.*;
+
+public class Solution {
+    static final int MOD = 1000000007;
+    static int[][] prefixCount;
+    static long[] fact, invFact;
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String s = br.readLine();
+        int n = s.length();
+
+        // Precompute Prefix Frequencies
+        prefixCount = new int[26][n + 1];
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < 26; j++) {
+                prefixCount[j][i + 1] = prefixCount[j][i];
+            }
+            prefixCount[s.charAt(i) - 'a'][i + 1]++;
+        }
+
+        // Precompute Factorials and Inverse Factorials
+        fact = new long[n + 1];
+        invFact = new long[n + 1];
+        fact[0] = 1;
+        invFact[0] = 1;
+        for (int i = 1; i <= n; i++) {
+            fact[i] = (fact[i - 1] * i) % MOD;
+        }
+        invFact[n] = power(fact[n], MOD - 2);
+        for (int i = n - 1; i >= 1; i--) {
+            invFact[i] = (invFact[i + 1] * (i + 1)) % MOD;
+        }
+
+        int q = Integer.parseInt(br.readLine());
+        StringBuilder out = new StringBuilder();
+        while (q-- > 0) {
+            String[] query = br.readLine().split(" ");
+            int l = Integer.parseInt(query[0]);
+            int r = Integer.parseInt(query[1]);
+            out.append(solve(l, r)).append("\n");
+        }
+        System.out.print(out);
+    }
+
+    static long solve(int l, int r) {
+        int pairsSum = 0;
+        int oddChars = 0;
+        long denominator = 1;
+
+        for (int i = 0; i < 26; i++) {
+            int count = prefixCount[i][r] - prefixCount[i][l - 1];
+            pairsSum += count / 2;
+            if (count % 2 == 1) oddChars++;
+            denominator = (denominator * invFact[count / 2]) % MOD;
+        }
+
+        long ans = (fact[pairsSum] * denominator) % MOD;
+        if (oddChars > 0) {
+            ans = (ans * oddChars) % MOD;
+        }
+
+        return ans;
+    }
+
+    static long power(long base, int exp) {
+        long res = 1;
+        base %= MOD;
+        while (exp > 0) {
+            if (exp % 2 == 1) res = (res * base) % MOD;
+            base = (base * base) % MOD;
+            exp /= 2;
+        }
+        return res;
+    }
+}
