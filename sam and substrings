@@ -1,0 +1,29 @@
+import java.io.*;
+import java.util.*;
+
+public class Solution {
+
+    public static int substrings(String n) {
+        long MOD = 1000000007L;
+        long totalSum = 0;
+        long currentEndingSum = 0;
+
+        for (int i = 0; i < n.length(); i++) {
+            int digit = n.charAt(i) - '0';
+            
+            // S[i] = (10 * S[i-1] + (i+1) * digit) % MOD
+            currentEndingSum = (currentEndingSum * 10 + (long)(i + 1) * digit) % MOD;
+            
+            // Add current ending sum to the total result
+            totalSum = (totalSum + currentEndingSum) % MOD;
+        }
+
+        return (int) totalSum;
+    }
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String n = br.readLine().trim();
+        System.out.println(substrings(n));
+    }
+}
